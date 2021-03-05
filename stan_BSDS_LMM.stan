@@ -61,6 +61,7 @@ transformed parameters{
 }
 
 model {
+  // set the prior
   //target+= uniform_lpdf(ev| 1, 10000);
   //target+= uniform_lpdf(MRCA| 0, 1000);
   
