@@ -1,0 +1,89 @@
+data {
+  // import data sizes //
+    int<lower=0> N; // total sample size
+    int<lower=0> N_sp; // number of species
+    int<lower=0> D; // dimension of explanatory variables
+    int DE_edge; // location of the phyloenetic edge, where directional selection occured
+  
+  // import phylogenetic data //
+    int len_phylo; // length of phylogenetic tree
+    vector[len_phylo] branch_len; // // vector of branch length of all the edges 
+    int tree_obj[len_phylo, 2];
+    int MRCA_ij[N_sp, N_sp]; // i,j elements correspond to the location of their MRCA in the tree
+  
+  // import regressin model data //
+    vector[N] y;        // objective variable
+    matrix[N, D] X;   // explanatory variable
+    int<lower=1> Z[N];  // spices id for random effect
+}
+
+ parameters {
+  real MRCA;
+  real<lower=0> ev;
+  //real<lower=1> k[len_phylo];
+  real sel;
+  vector[D] beta;
+  real<lower=0> sigma_y;
+  vector[N_sp] b;
+  
+}
+
+transformed parameters{
+  //real<lower=0> sigma[N];
+  vector[len_phylo] k;
+  vector[len_phylo+1] sim_mean;
+  vector[len_phylo+1] sim_var;
+  
+  cov_matrix[N_sp] vcv_BSDE;
+  vector[N] mu;
+  
+  sim_mean[tree_obj[1,1]]= MRCA;
+  sim_var [tree_obj[1,1]]= 0;
+  
+  for(i in 1:len_phylo) k[i] = 1;
+  k[DE_edge] = exp(sel);
+  
+  for(i in 1:len_phylo){
+    sim_mean[tree_obj[i,2]] = sim_mean[tree_obj[i,1]] + (branch_len[i]*ev*(k[i]^2-1))/k[i];
+    sim_var [tree_obj[i,2]] =  sim_var[tree_obj[i,1]] + (2*branch_len[i]*ev*(k[i]^2+1))/k[i];
+  }
+  
+  for(i in 1: N_sp){
+    for(j in i: N_sp){
+      if(i != j){
+      vcv_BSDE[i, j] = sim_var[MRCA_ij[i, j]];
+      vcv_BSDE[j, i] = sim_var[MRCA_ij[i, j]];
+      }else{
+        vcv_BSDE[i, j] = sim_var[i];
+        vcv_BSDE[j, i] = sim_var[i];
+      }
+    }
+  }
+  
+  for(i in 1:N){
+    //sigma[i] = sqrt(fabs(vcv_BSDE[Z[i],Z[i]]));
+    mu[i] = X[i,] * beta + b[Z[i]];
+  }
+
+}
+
+model {
+  // set the prior
+    //target+= uniform_lpdf(ev| 1, 10000);
+    //target+= uniform_lpdf(MRCA| 0, 1000);
+  
+  // add prob. density for realized random-effects
+  target+= multi_normal_lpdf(b| sim_mean[1:N_sp], vcv_BSDE);
+  
+  //
+  target+= normal_lpdf(y| mu, sigma_y);
+  //target+= poisson_log(y| mu);
+  //target+= bernoulli_logit(y| mu);
+}
+
+
+generated quantities {
+vector[N] log_likelihood;
+// obtain log likelihood
+  for(n in 1:N){log_likelihood[n] = normal_lpdf(y[n]| mu[n], sigma_y);}
+}
