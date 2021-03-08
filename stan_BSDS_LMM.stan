@@ -80,3 +80,4 @@ generated quantities {
   // obtain log likelihood
   for(n in 1:N){log_likelihood[n] = normal_lpdf(y[n]| X[n,] * beta + Z[n,] * b, sigma_y);}
 }
+
