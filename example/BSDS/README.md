@@ -1,18 +1,15 @@
----
-title: "BSDSモデルによる方向性淘汰圧の推定"
-author: "Ph.D. Ohkubo Yusaku (ROIS-DS & Institute of Statistical Mathematics) {y-ohkubo[--]ism.ac.jp}"
-date: "3/8/2021"
-output: 
-  html_document: 
-    keep_md: yes
----
 
+# "BSDSモデルによる方向性淘汰圧の推定"
+author: "Ph.D. Ohkubo Yusaku (ROIS-DS & Institute of Statistical Mathematics) {y-ohkubo[--]ism.ac.jp}"<br>
+date: "Mar.9 2021"
 
 
 ## Introduction
 枝特異的方向性淘汰モデル(branch-specific directional selection; 以下、BSDS)は種間系統比較法(phylogenetic comparative method)の一種で、系統樹における一部の枝で方向性淘汰を経た生物の形質を分析するために開発されました。
 このドキュメントでは、仮想の形質データを題材にRとStanで実際にBSDSモデルを使ってマクロ進化の分析を実行する方法について紹介します。
-__なお、BSDSモデルをランダム効果として使った回帰モデル(BSDS-LMM)を実行するには別ページを参照してください。__
+__なお、BSDSモデルをランダム効果として使った回帰モデル(BSDS-LMM)を実行するには以下のページを参照してください。__
+
+https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_LMM
 
 ## 下準備
 ### 必要パッケージのインストール
