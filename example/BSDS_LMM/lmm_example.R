@@ -27,11 +27,18 @@ BSDSLMM_data<- function(phylo, y, X, Z, D_edge){
 }
 
 # load data
-load("sample.csv")
+data<- read.csv("BSDS_LMM_sample.csv")
 
-y<- dat$y
-X<- dat$X
-Z<- dat$sp_ID
+Y<- dat$y
+X<- as.matrix(data$X)
+sp_ID<- (data$sp_ID)
+
+phylo<- read.tree("BSDS_LMM_tree")
+plot(phylo)
+axisPhylo()
+phylo$edge # tree構造:[,1]の親種から[,2]の子孫種へエッジが伸びている
+
+D_edge<- 18
 
 dat<- BSDSLMM_data(phylo, y, X, Z, D_edge = D_edge)
 
@@ -39,14 +46,14 @@ dat<- BSDSLMM_data(phylo, y, X, Z, D_edge = D_edge)
 par<- c("MRCA", "beta", "log_likelihood")
 scr<-"BSDS_LMM.stan"
 
-war<- 1000
-ite<- 21000
-cha<- 1
-#options(mc.cores = parallel::detectCores())
+war<- 5000
+ite<- 25000
+cha<- 2
+options(mc.cores = parallel::detectCores())
 
 # sampling
 fit_BSDS<-stan(file = scr, model_name = scr, data = dat, pars = par, chains = cha, 
-          warmup = war, iter = ite, thin = 10)
+          warmup = war, iter = ite, thin = 10, control = list(adapt_delta=0.95))
 
 print(fit_BSDS)
 
