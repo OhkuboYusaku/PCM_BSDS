@@ -73,3 +73,4 @@
   // obtain log likelihood
     for(i in 1:N){log_likelihood[i] = normal_lpdf(y[i]| mu[i], sigma[i]);}
   }
+
