@@ -1,0 +1,7 @@
+html_document:
+  self_contained: false
+  mathjax: null
+  lib_dir: libs
+  includes:
+    in_header: include/in_header.html
+    after_body: include/after_body.html
