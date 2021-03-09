@@ -1,4 +1,4 @@
-  data {
+data {
     // import data sizes //
       int<lower=0> N; // total sample size
       int<lower=0> N_sp; // number of species
@@ -9,6 +9,11 @@
       vector[len_phylo] branch_len; // vector of branch length of all the edges 
       int tree_obj[len_phylo, 2];
       int MRCA_ij[N_sp, N_sp]; // i,j elements correspond to the location of their MRCA in the tree
+      
+    // import regressin model data //
+      vector[N] y;        // objective variable
+      int Z[N];  // spices id for random effect
+
       }
 
   parameters {
@@ -73,4 +78,5 @@
   // obtain log likelihood
     for(i in 1:N){log_likelihood[i] = normal_lpdf(y[i]| mu[i], sigma[i]);}
   }
+
 
