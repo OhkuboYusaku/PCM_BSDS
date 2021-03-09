@@ -1,9 +1,8 @@
----
-title: "BSDSモデルによる線形変量効果モデル(BSDS-LMM)の推定"
-author: "Ph.D. Ohkubo Yusaku (ROIS-DS & Institute of Statistical Mathematics) {y-ohkubo[--]ism.ac.jp}"
-date: "3/8/2021"
----
 
+
+# "BSDSモデルによる線形変量効果モデル(BSDS-LMM)の推定"
+author: "Ph.D. Ohkubo Yusaku (ROIS-DS & Institute of Statistical Mathematics) {y-ohkubo[--]ism.ac.jp}"<br>
+date: "Mar.9 2021"
 
 
 ## Introduction
