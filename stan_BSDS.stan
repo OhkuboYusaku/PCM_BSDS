@@ -2,7 +2,7 @@ data {
     // import data sizes //
       int<lower=0> N; // total sample size
       int<lower=0> N_sp; // number of species
-      int DS_edge; // location of the phyloenetic edge, where directional selection occured
+      int D_edge; // location of the phyloenetic edge, where directional selection occured
 
     // import phylogenetic data //
       int len_phylo; // length of phylogenetic tree
