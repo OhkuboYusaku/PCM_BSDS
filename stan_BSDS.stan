@@ -36,7 +36,7 @@ data {
     sim_var [tree_obj[1,1]]= 0;
   
     for(i in 1:len_phylo) k[i] = 1;
-    k[DS_edge] = sel; // set the edge number where directional evolution occured.
+    k[D_edge] = sel; // set the edge number where directional evolution occured.
   
     for(i in 1:len_phylo){
       sim_mean[tree_obj[i,2]] = sim_mean[tree_obj[i,1]] + (branch_len[i]*ev*(k[i]^2-1))/k[i];
