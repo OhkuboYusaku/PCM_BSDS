@@ -1,15 +1,3 @@
----
-title: "単純な多変量正規BSDSモデルを使った最尤推定"
-author: "Ph.D. Ohkubo Yusaku (ROIS-DS & Institute of Statistical Mathematics) {y-ohkubo[--]ism.ac.jp}"
-date: "2/Dec./2021"
-output: 
-  html_document: 
-    keep_md: yes
-    self_contained: TRUE
- 
----
-
-
 
 ## Introduction
 枝特異的方向性淘汰モデル(branch-specific directional selection; 以下、BSDS)は種間系統比較法(phylogenetic comparative method)の一種で、系統樹における一部の枝で方向性淘汰を経た生物の形質を分析するために開発されました。
