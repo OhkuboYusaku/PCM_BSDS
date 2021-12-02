@@ -26,7 +26,6 @@ library(mvnfast)
 BSDSモデルで最尤推定するには、独自の尤度関数を定義しておく必要があります。
 
 ```r
-# define data-arrangement function
   loglik<- function(phylo, theta, y, DS_edge){
     MRCA<- theta[1]
     ev<- (theta[2])
