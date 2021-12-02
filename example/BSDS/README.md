@@ -169,8 +169,20 @@ print()関数で、R_hatも含めた要約統計量の一覧を得ることが�
 
 ```r
 print(fit_BSDS)
+
 ```
 
+
+ ```r
+ traceplot(fit_BSDS)
+ ```
+
+ ```
+ ## 'pars' not specified. Showing first 10 parameters by default.
+ ```
+
+ ![](BSDS_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+ 
 その他{shinystan}では、マルコフ連鎖の診断や事後分布の可視化など優れたツールを提供しています。
 
 
