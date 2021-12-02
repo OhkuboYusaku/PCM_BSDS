@@ -2,7 +2,7 @@ data {
   // import data sizes //
     int<lower=0> N;
     int<lower=0> N_sp;
-    int DE_edge;
+    int DS_edge;
   
   // import phylogenetic data //
     int len_phylo;
@@ -37,7 +37,7 @@ transformed parameters{
   sim_var [tree_obj[1,1]]= 0;
   
   for(i in 1:len_phylo) k[i] = 1;
-  k[DE_edge] = exp(sel);
+  k[DS_edge] = exp(sel);
   
   for(i in 1:len_phylo){
     sim_mean[tree_obj[i,2]] = sim_mean[tree_obj[i,1]] + (branch_len[i]*ev*(k[i]^2-1))/k[i];
