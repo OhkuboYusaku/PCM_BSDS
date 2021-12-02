@@ -62,7 +62,6 @@ model {
   //target+= uniform_lpdf(ev| 1, 10000);
   //target+= uniform_lpdf(MRCA| 0, 1000);
   
-  //target+= multi_normal_cholesky_lpdf(b| sim_mean[1:N_sp], vcv_BSDE);
   target+= multi_normal_lpdf(b| sim_mean[1:N_sp], vcv_BSDE);
   
 
