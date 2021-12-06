@@ -36,7 +36,8 @@ library(dummies)
 
 Stanのインストールがうまくいかない場合は、下記の公式ドキュメントを参照してください。
 https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started-(Japanese)
-If failed to install Stan, please refer to the official document of Stan.
+
+If failed to install Stan, please refer to the official document.
 https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 
 
