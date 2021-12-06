@@ -12,7 +12,7 @@ The branch-specific directional selection model (BSDS) is one of the statistical
 
 __なおこのページでは、種内分散を考慮して真の平均形質と進化パラメータを同時に推定する階層モデルを扱います(e.g. Revell and Reynolds 2012; Evolution)。通常のPCMのように多変量正規分布から直接する際は、下記を参照してください。__
 
-__This page, to adjust within-species variation, considers a hierarchical modeling approach, where true trait mean and evolutionary parameters are simultaneously estimated (e.g. Revell and Reynolds 2012; Evolution). See the usual multivariate normal model below.__
+__This page, to adjust within-species variation, considers a hierarchical modeling approach, where true trait mean and evolutionary parameters are simultaneously estimated (e.g. Revell and Reynolds 2012; Evolution). See below for the usual multivariate normal model.__
 
 https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_MLE
 
