@@ -2,22 +2,26 @@
 
 # "BSDSモデルによる線形変量効果モデル(BSDS-LMM)の推定"
 author: "Ph.D. Ohkubo Yusaku (ROIS-DS & Institute of Statistical Mathematics) {y-ohkubo[--]ism.ac.jp}"<br>
-date: "Mar.9 2021"
+date: "Dec.6 2021"
 
 
 ## Introduction
-枝特異的方向性淘汰モデル(branch-specific directional selection; 以下、BSDS)は種間系統比較法(phylogenetic comparative method)の一種で、系統樹における一部の枝で方向性淘汰を経た生物の形質を分析するために開発されました。
-このドキュメントでは、仮想の形質データを題材にRとStanで実際にBSDSモデルを使った回帰分析を実行する方法について紹介します。
+枝特異的方向性淘汰モデル(branch-specific directional selection; 以下、BSDS)は種間系統比較法(phylogenetic comparative method)の一種で、系統樹における一部の枝で方向性淘汰を経た生物の形質を分析するために開発されました。 通常のPCMで扱う祖先形質や進化率の推定に加え、ある与えられた枝における“方向性”の強さとその不確実性を推定することができます。このドキュメントでは、仮想の形質データを題材にRとStanで実際にBSDSモデルを使った回帰分析を実行する方法について紹介します。
 
+The branch-specific directional selection model (BSDS) is one of the statistical methodologies called the phylogenetic comparative methods (PCM). It aims to analyze cases where focal phenotypic traits experienced “directional selection” at only parts of a phylogenetic tree. In addition to the most recent common ancestor (MRCA), evolution rate, this model estimates the strength of the directional selection at a given edge as well as its uncertainty. This document introduces a practical guide to conduct Bayesian inferences using Stan.
 
-__なお回帰ではなく(説明変数がない）、祖先形質(MRCA)、進化率(ev)、選択圧の強さ(k)などマクロ進化に関わるパラメータそのものを推定したい場合は、以下のページを参照してください。__
+__なおこのページでは、種内分散を考慮して真の平均形質と進化パラメータを同時に推定する階層モデルを扱います(e.g. Revell and Reynolds 2012; Evolution)。通常のPCMのように多変量正規分布から直接する際は、下記を参照してください。__
 
-https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS
+__This page, to adjust within-species variation, considers a hierarchical modeling approach, where true trait mean and evolutionary parameters are simultaneously estimated (e.g. Revell and Reynolds 2012; Evolution). See the usual multivariate normal model below.__
 
-## 下準備
-### 必要パッケージのインストール
+https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_MLE
+
+## 下準備/preparations
+### 必要パッケージのインストール/Installing necessarily packages
+
 以下のコードでは、{ape},{rstan}{dummies}の3つのパッケージに依存しています。事前にインストールし、読み込んでおきます。
 
+The following example program depends on three R packages, {ape}, {rstan}, and {dummies}. Make sure to be installed, and import in advance.
 ```r
 install.packages(c("ape", "rstan", "dummies"))
 ```
@@ -26,46 +30,23 @@ install.packages(c("ape", "rstan", "dummies"))
 ```r
 library(ape)
 library(rstan)
-```
-
-```
-## Loading required package: StanHeaders
-```
-
-```
-## Loading required package: ggplot2
-```
-
-```
-## rstan (Version 2.21.2, GitRev: 2e1f913d3ca3)
-```
-
-```
-## For execution on a local, multicore CPU with excess RAM we recommend calling
-## options(mc.cores = parallel::detectCores()).
-## To avoid recompilation of unchanged Stan programs, we recommend calling
-## rstan_options(auto_write = TRUE)
-```
-
-```r
 library(dummies)
-```
-
-```
-## dummies-1.5.6 provided by Decision Patterns
 ```
 
 
 Stanのインストールがうまくいかない場合は、下記の公式ドキュメントを参照してください。
 https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started-(Japanese)
+If failed to install Stan, please refer to the official document of Stan.
+https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 
 
 ### 必要な関数の準備
 BSDSモデルをStanで実行するには、各個体の形質値、説明変数、種名のインデックス、系統樹のトポロジーと枝長、など多くのデータを受け渡す必要があります。そこで、これらのデータを一括してStanに渡すリスト形式に変換できるようあらかじめ関数を定義しておくと便利です。
 
+When implementing the BSDS model in Stan, you need many objects including individual trait data, explanatory variables, a species variable, which codes species ID, topology and branch lengths of a phylogenetic tree, etc. A pre-defined function is useful to convert all these elements into a single list format.
 ```r
 # define data-arrangement function
-BSDSLMM_data<- function(phylo, y, X, Z, D_edge){
+BSDSLMM_data<- function(phylo, y, X, Z, DS_edge){
   len_phylo<- length(phylo$edge.length)
   N_tip<- len_phylo - phylo$Nnode +1
   branch_len<- phylo$edge.length
@@ -80,17 +61,21 @@ BSDSLMM_data<- function(phylo, y, X, Z, D_edge){
   
   dat<- list(N=length(y), N_sp=N_tip, 
              len_phylo=len_phylo, branch_len=branch_len, tree_obj=tree_obj, MRCA_ij=MRCA_ij,
-             y=y, X=X, Z=dummy(Z), D_edge=D_edge, D=ncol(X))
+             y=y, X=X, Z=dummy(Z), DS_edge=DS_edge, D=ncol(X))
   
   return (dat)
 }
 ```
 
+回帰が不要な場合にはXを削除してください。
 
-## 実行例
-### データの読み込み
+Ommit X, if explanatory variable is not needed.
+
+## 実行例/Running example
+### データの読み込み/Importing data
 まず、題材となるデータを読み込み、構造を確認します。
 
+First, let us import data and check its structure.
 
 ```r
 data<- read.csv("BSDS_LMM_sample.csv")
@@ -115,9 +100,11 @@ sp_ID<- (data$sp_ID)
 
 Yに各個体(i=1,2,...N_sample)の形質値、Xに説明変数(今回は1次元)、sp_IDに各個体の種ID(1,2,...N_sp)を格納しています。
 
+Y contains trait data of each individuals (i=1, 2, …N_sample), X is an explanatory variable (one-dimensional in this case), sp_ID is an indicator of species ID (1,2, …N_sp).
 
 次に系統樹を読み込みます。ここでは、{ape}パッケージの関数を用いてNewick形式で記録された系統樹を読み込みます。
 
+Next, let us import a phylogenetic tree. Here in this example, we use a function from {ape} package and import a Newick formatted file.
 ```r
 phylo<- read.tree("BSDS_LMM_tree")
 plot(phylo)
@@ -128,6 +115,7 @@ axisPhylo()
 
 ```r
 phylo$edge # tree構造:[,1]の親種から[,2]の子孫種へエッジが伸びている
+# tree structure: Edges are connected from a parent species [,1] to a descendent species [,2]
 ```
 
 ```
@@ -156,14 +144,16 @@ phylo$edge # tree構造:[,1]の親種から[,2]の子孫種へエッジが伸び
 
 
 ```r
-D_edge<- 18
+DS_edge<- 18
 ```
 
 複数の枝で方向性淘汰が生じている場合にもc(10, 18)などで渡すことができますが、下記で読み込むStanモデルのソースコードに若干の修正を要します。
 
+You can set, for example, c(10, 18), when directional selection happened at multiple edges, but a little modification is required for the Stan code, called below. 
 
 最後に、これらのデータを先の関数でリスト形式に変換します。
 
+Finally, convert all these data into a list format using the function we defined above.
 
 ```r
 dat<- BSDSLMM_data(phylo, Y, X, sp_ID, D_edge)
@@ -176,16 +166,14 @@ dat<- BSDSLMM_data(phylo, Y, X, sp_ID, D_edge)
 
 警告が出ますが、無視して構いません。
 
-### Stanの設定
+Dismiss this warning.
+
+### Stanの設定/Configurations of Stan
 Stanコードのファイル名を渡し(scr)、MCMCのサンプリング(ite)とwarmup(war)の回数、マルコフ連鎖の本数(cha)を指定します。
-
-
-parには、推定するパラメータを指定します(オプション）。
-説明変数の回帰係数を知りたいだけならbetaだけでも良いですが、WAICなどを計算するにはlog_likelihoodも必要になります。
-__なお祖先種の状態(MRCA),進化率(ev),淘汰圧の強さ(k)を指定することもできますが、混合効果モデル(LMM)では~~識別性(identifiability)の問題が生じる~~ (3/18)パラメタ間に非常に強い相関が生じるようです。したがって、ランダム効果に関わるパラメータは周辺化してしまうことをお勧めします。__
-
 マルチコアCPUの場合、最後のオプションを有効にすることで並列計算を実行することができ時間の節約になります。
 
+Set the file name of the Stan code (scr), and designate the length of iterations, its warmup, and the number of chains for Markov Chains.
+Using multicore lets computation in parallel, and reduces running time.
 ```r
 scr<-"stan_BSDS_LMM.stan"
 war<- 5000
@@ -195,9 +183,10 @@ par<- c("beta", "log_likelihood")
 options(mc.cores = parallel::detectCores())
 ```
 
-### サンプリングの開始
+### サンプリングの開始/Staring sampling
 いよいよ、MCMCで事後分布からのサンプリングを行います。
 
+Obtain samples from the posterior distribution via MCMC.
 ```r
 fit_BSDS<- stan(file = scr, model_name = scr, data = dat, pars = par, chains = cha, 
           warmup = war, iter = ite, thin = 10, control = list(adapt_delta=0.95))
@@ -231,12 +220,18 @@ fit_BSDS<- stan(file = scr, model_name = scr, data = dat, pars = par, chains = c
 ## make: *** [foo.o] Error 1
 ```
 サンプリングの実行後にDivergent transitionやmaximum treedepthの警告が表示される際には、下記を参考にadapt_deltaなどを調節します。
+
+Adjust adapt_delta or other augments of “control”, if warning messages exist on a divergent transition and/or maximum treedepth. See below for details.
 https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 
-## 結果の出力
+## 結果の出力/ output results
 __MCMCが収束していることを保証するため、必ずtraceplot()やR_hatを確認しましょう。__
+
+__Check posterior diagnostics, like traceplots or R_hat, to ensure the MCMC converged.__
+
 print()関数で、R_hatも含めた要約統計量の一覧を得ることができます。
 
+print() function offers a series of summary statistic including R_hat.
 ```r
 print(fit_BSDS)
 ```
@@ -472,14 +467,7 @@ traceplot(fit_BSDS)
 
 その他{shinystan}では、マルコフ連鎖の診断や事後分布の可視化など優れたツールを提供しています。
 
-### WAICの計算
-
-```r
-install.packages(loo)
-library(loo)
-waic(extract(fit_BSDS)$log_likelihood)
-```
-
+{shinystan} offers many other helpful tools for diagnostics and visualization of Markov chains.
 
 ## References
 大久保, 沓掛, 小泉 (2021)."枝特異的な方向性淘汰の推定について", March 17. 第68日本生態学会全国大会(https://esj.ne.jp/meeting/abst/68/D01-12.html)  
