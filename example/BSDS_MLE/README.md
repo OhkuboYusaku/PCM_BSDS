@@ -188,7 +188,7 @@ parに、MRCA, ev, kの適当な初期値を与えてあります。うまくい
 Here, par is an initial value of MRCA, ev rate, and k, the strength of directional selection, to be evaluated. If failed to optimize, take different initial values or "preheat" the log-likelihood using method =" SANN", prior to BFGS method.
 
 ## 結果の出力/output
-最尤推定値、その標準誤差、Zなどを抽出できます。なお、SEの評価には素朴に尤度関数のヘッセ行列を使っています(即ち、最尤推定量に関して通常の漸近理論を仮定)。しかし、データの種数が少ない場合(例えば10種)には見積もりがあまくなる場合があるようです。ベイズ推定を用いることで見積もりが改善する場合があります。
+最尤推定値、その標準誤差、Z値などを抽出できます。なお、SEの評価には素朴に尤度関数のヘッセ行列を使っています(即ち、最尤推定量に関して通常の漸近理論を仮定)。しかし、データの種数が少ない場合(例えば10種)には見積もりがあまくなる場合があるようです。ベイズ推定を用いることで見積もりが改善する場合があります。
 
 You can extract the maximum likelihood estimate, its standard error, Z-value, etc. Here, the Hessian matrix is used to evaluate SE (i.e. the standard asymptotic theory of MLE is assumed). It tends to be, however, too optimistic when the number of species is too small (e.g. N_sp ＝10). Bayes estimate could be help in this case.
 
