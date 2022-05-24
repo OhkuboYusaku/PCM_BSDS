@@ -36,7 +36,7 @@ BSDSモデルで最尤推定するには、独自の尤度関数を定義して�
 To obtain the maximum likelihood estimate, define the log-likelihood function in advance.
 
 ```r
-  loglik<- function(phylo, theta, y, DS_edge){
+ loglik<- function(phylo, theta, y, DS_edge, MRCA_ij){
     MRCA<- theta[1]
     ev<- (theta[2])
     k<- numeric(length(phylo$edge.length)) + 1
@@ -69,16 +69,14 @@ To obtain the maximum likelihood estimate, define the log-likelihood function in
     for(i in 1: N_tip){
       for(j in i: N_tip){
         if(i != j){
-          MRCA_ij<- getMRCA(phylo, tip=c(i,j))
-          vcv_BSDE[i, j]<- vcv_BSDE[j, i]<- simulated_var_trait[MRCA_ij]
+          vcv_BSDE[i, j]<- vcv_BSDE[j, i]<- simulated_var_trait[MRCA_ij[i,j]]
         }else{
           vcv_BSDE[i, j]<- vcv_BSDE[j, i]<- simulated_var_trait[i]
         }
       }
     }
-    
-    if((sum(is.na(vcv_BSDE))>0)||(min(eigen(vcv_BSDE)$values)<=0)){return(-Inf)}
-    loglik<- try(dmvn(y, simulated_mean_trait[1:N_tip],  Matrix::nearPD(vcv_BSDE)$mat, log=T))
+
+    loglik<- try(dmvn(y, simulated_mean_trait[1:N_sp],  Matrix::nearPD(vcv_BSDE)$mat, log=T))
     if(is.numeric(loglik)==F){return(-10000)}
     
     return(loglik)
@@ -115,13 +113,20 @@ Yに各種(i=1,2,...N_sp)の形質値を格納しています。
 
 Y contains trait data of each individuals (i=1, 2, …N_sample),and sp_ID is an indicator of species ID (1,2, …N_sp).
 
-次に系統樹を読み込み加工しておきます。ここでは、{ape}パッケージの関数を用いてNewick形式で記録された系統樹を読み込みます。
+次に系統樹を読み込み加工しておきます。ここでは、{ape}パッケージの関数を用いてNewick形式で記録された系統樹を読み込みます。また、二つの種i, jの共通祖先を定義しておきます。
 
-Next, let us import a phylogenetic tree. Here in this example, we use a function from {ape} package and import a Newick formatted file.
+Next, let us import a phylogenetic tree. Here in this example, we use a function from {ape} package and import a Newick formatted file. The common ancestor of the two species i,j is also defined. 
 ```r
 phylo<- read.tree("BSDS_LMM_tree")
 plot(phylo)
 axisPhylo()
+ MRCA_ij<- matrix(0, N_tip, N_tip) ## i,j elements correspond to the location of their MRCA in the tree
+ 
+  for(i in 1:N_tip){
+    for(j in i:N_tip){
+      MRCA_ij[i,j]<- MRCA_ij[j,i]<- getMRCA(phylo, tip=c(i,j))
+    }
+  }
 ```
 
 ![](BSDS_MLE_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
@@ -179,7 +184,7 @@ Maximize the log-likelihood function using optim function.
 ```r
   BSDS_MLE<- optim(par=c(100, 10, 5), fn=loglik, gr = NULL,
                        phylo=phylo, y=model$coefficients, DS_edge=DS_edge,
-                       method = "BFGS",
+                       method = "BFGS", MRCA_ij=MRCA_ij,
                        control=list(fnscale=-1, trace=0, maxit=1000000), hessian=T)
 ```
 
