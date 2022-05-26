@@ -11,10 +11,11 @@ __なお、BSDSモデルをランダム効果として使った回帰モデル(B
 
 https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_LMM
 
-## 下準備
-### 必要パッケージのインストール
+## 下準備/ Preparations
+### 必要パッケージのインストール/ Installing the required packages
 このコードでは、{ape},{rstan}の2つのパッケージに依存しています。事前にインストールし、読み込んでおきます。
 
+The following code depends on {ape} and {rstan}. Install and load them.
 ```r
 install.packages(c("ape", "rstan", "dummies"))
 ```
@@ -28,9 +29,14 @@ library(rstan)
 Stanのインストールがうまくいかない場合は、下記の公式ドキュメントを参照してください。
 https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started-(Japanese)
 
+If failed to install Stan, please ask the following official document.
+https://mc-stan.org/users/interfaces/rstan
 
-### 必要な関数の定義
+
+### 必要な関数の定義/ Definition of the required R-function
 BSDSモデルをStanで実行するには、各個体の形質値、種名のインデックス、系統樹のトポロジーと枝長、など多くのデータを受け渡す必要があります。そこで、これらのデータを一括してStanに渡すリスト形式に変換できるようあらかじめ関数を定義しておくと便利です。
+
+When the BSDS is applied, Stan needs the individual trait data, the index of each spiecies, the topology and the branch-length of the phylogenetic tree. The following function is usefull convert them as a single object.
 
 ```r
 # define data-arrangement function
@@ -56,10 +62,11 @@ BSDS2stan_data<- function(phylo, y, Z, D_edge){
 ```
 
 
-## 実行例
-### データの読み込み
+## 実行例/ Run
+### データの読み込み/Import data
 まず、題材となるデータを読み込み、構造を確認します。
 
+First, we import data and check its structure.
 
 ```r
 data<- read.csv("BSDS_sample.csv")
@@ -83,9 +90,11 @@ sp_ID<- (data$sp_ID)
 
 Yに各個体(i=1,2,...N_sample)の形質値、sp_IDに各個体の種ID(1,2,...N_sp)を格納しています。
 
+Y contains individual trait data and sp-IC contains the spicies ID of them.
 
 次に系統樹を読み込みます。ここでは、{ape}パッケージの関数を用いてNewick形式で記録された系統樹を読み込みます。
 
+Next, we import the phylogenetic tree. Here, we use {ape} package to load Newic-formated tree.
 
 ```r
 phylo<- read.tree("BSDS_tree")
@@ -131,6 +140,7 @@ DS_edge<- 2
 
 最後に、これらのデータを先の関数でリスト形式に変換します。
 
+Convert them to a list format.
 
 ```r
 dat<- BSDS2stan_data(phylo, Y, sp_ID, D_edge)
@@ -139,6 +149,7 @@ dat<- BSDS2stan_data(phylo, Y, sp_ID, D_edge)
 ### Stanの設定
 Stanコードのファイル名を渡し(scr)、MCMCのサンプリング(ite)とwarmup(war)の回数、マルコフ連鎖の本数(cha)を指定します。
 
+Designate the file name of the Stan code, the number of iterations, warmup, and the Mrkov chains.
 
 parには、推定するパラメータを指定します(オプション）。
 
@@ -155,6 +166,8 @@ options(mc.cores = parallel::detectCores())
 
 ### サンプリングの開始
 いよいよ、MCMCで事後分布からのサンプリングを行います。
+
+Sampling from the posterior.
 
 ```r
 fit_BSDS<- stan(file = scr, model_name = scr, data = dat, pars = par, chains = cha, 
@@ -184,15 +197,6 @@ print(fit_BSDS)
  ![](BSDS_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
  
 その他{shinystan}では、マルコフ連鎖の診断や事後分布の可視化など優れたツールを提供しています。
-
-
-### 周辺尤度の計算
-
-今回使用しているstanコードでは、すべてのパラメータに対してtarget+記法を採用しています。したがって、lp__変数を手元のモンテカルロ標本で平均すると周辺尤度の近似値が得られることになります(調和平均法)。ただし一般に調和平均による周辺尤度の計算は揺らぎが大きいことが知られており、実務的にはRパッケージ{bridgesampling}などを用いて再計算することをお勧めします。__周辺尤度を計算する際には元のstanコードを改変し、事前分布の正則性が保証されていることを必ず確認してください。__
-
-### なんらかの理由でベイズ推定を絶対に使いたくない場合や、p値が算出できない統計手法を採用したくない場合
-
-ニュートン法などで最尤推定値を求めたり、2次までの近似に基づくWald検定を行うことができます。ただしサンプルサイズ(種数)が大きくない場合には、最尤推定量に3次より高い項が残りWald検定の要求する仮定(最尤推定値が真の値の周りで正規分布に従う)を満たさない傾向にあるようです(数値実験; Ohkubo unpubl.)。この場合は標準誤差の見積もりがやや楽観的になり、p値=5%水準で検定を行っても第一種の過誤を犯す確率が5%に収まりません。高次の補正項が理論的にわかるまでは、十分な注意が必要です。
 
 
 ## References
