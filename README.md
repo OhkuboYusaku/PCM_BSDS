@@ -23,5 +23,5 @@ __BSDSモデルをランダム効果回帰モデル(BSDS-LMM)としてあつか�
 __The linear mixed model, which assumes BSDS for the covariance structure of random-effect(BSDS-LMM) is described [here](https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_LMM)__. 
 When a dataset contains multiple species, this model corrects "spurious correlation", induced by the shared evolutionary history among species,  when we estimate a regression coefficient of an explanatory variable X.
 
-References
+## References
 Ohkubo, Y., Kutsukake, N., & Koizumi, I. (2023). A novel phylogenetic comparative method for evaluating the strength of branch-specific directional selection. Evolution. 77(1), 63–82, https://doi.org/10.1093/evolut/qpac015
