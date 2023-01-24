@@ -472,4 +472,4 @@ traceplot(fit_BSDS)
 
 ## References
 大久保, 沓掛, 小泉 (2021)."枝特異的な方向性淘汰の推定について", March 17. 第68日本生態学会全国大会(https://esj.ne.jp/meeting/abst/68/D01-12.html)  
-Ohkubo, Kutsukake, Koizumi (under review) "Evaluating a strength of directional selection using a novel branch-specific directional selection (BSDS) model of phylogenetic comparative method"
+Ohkubo, Y., Kutsukake, N., & Koizumi, I. (2023). A novel phylogenetic comparative method for evaluating the strength of branch-specific directional selection. Evolution. 77(1), 63–82.
