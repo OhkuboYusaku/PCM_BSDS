@@ -208,4 +208,4 @@ CI_up<- MLE + 1.96*SE
 
 
 ## References
-Ohkubo, Kutsukake, Koizumi (under review) "Evaluating a strength of directional selection using a novel branch-specific directional selection (BSDS) model of phylogenetic comparative method"
+Ohkubo, Y., Kutsukake, N., & Koizumi, I. (2023). A novel phylogenetic comparative method for evaluating the strength of branch-specific directional selection. Evolution. 77(1), 63–82
