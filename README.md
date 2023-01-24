@@ -11,10 +11,10 @@ __各種の平均形質値を使って直接多変量正規分布を当てはめ
 
 __A simple multivariate-normal distribution approach is described [here](https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_MLE), which fits mean trait values. This page shows how to estimate the most common recent ancestor (MRCA), evolutionary rate (ev), and the strength of the directional selection using the maximum likelihood estimator, including the R-code.__ This approach is the most computationally efficient methodology and scales to a larger dataset (e.g. N_sp=1000). It applies even when we do not have individual trait data. But, it dismisses estimation error of the mean trait values and intra-species variations. Further, the confidence interval of ev, k could be too optimistic when the number of species is small (e.g. <50).
 
-階層ベイズモデルによって、各種の平均形質とPCMのパラメータ(MRCA, ev, k)を同時に推定する方法(RおよびStanコード)はこちらを参照してください。
+階層ベイズモデルによって、各種の平均形質とPCMのパラメータ(MRCA, ev, k)を同時に推定する方法(RおよびStanコード)は[こちら](https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS)を参照してください。
 この方法は、平均形質の推定誤差や種内分散を補正しながら(MRCA, ev, k)を推定でき頻度論的な被覆確率もほぼ名目通りになりますが、計算時間は大きくなります(10サンプルずつ50種の場合でおよそ1-2分)。
 
-A hierarchical Bayesian modeling approach is described here, including the R and Stancode. Simultaneous estimation of both a mean trait value within each species and the latent parameter behind the evolutionary history is possible. 
+A hierarchical Bayesian modeling approach is described [here](https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS), including the R and Stancode. Simultaneous estimation of both a mean trait value within each species and the latent parameter behind the evolutionary history is possible. 
 This approach adjusts estimation error and intra-species variation when we estimate (MRCA, ev, k) and achives almost nominal error rate in the Frequentist sense, but computationally more demanding (a few minutes for 10 samples * 50 species dataset).
 
 __BSDSモデルをランダム効果回帰モデル(BSDS-LMM)としてあつかい、回帰係数などを推定する方法(RとStanコード)は[こちら](https://github.com/OhkuboYusaku/PCM_BSDS/tree/main/example/BSDS_LMM)を参照してください__。
