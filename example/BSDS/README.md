@@ -1,6 +1,6 @@
 # Estimating Directional Selection using the BSDS Model
 
-**Author:** Dr. Yusaku Ohkubo (ROIS-DS & Institute of Statistical Mathematics)\
+**Author:** Dr. Yusaku Ohkubo (Okayama Univ. & Institute of Statistical Mathematics)\
 **Contact:** y-ohkubo[--]okayama-u.ac.jp\
 **Updated:** July 9, 2025
 
